@@ -1,0 +1,6 @@
+{
+  "name": "RichScore",
+  "description": "AI on-page SEO tool for websites built with AI website builders. Live score ring, one-click script fixes, keyword research, rank tracking, and agency reporting.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

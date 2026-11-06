@@ -1,0 +1,123 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile metadata",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Auth UID" },
+        "email": { "type": "string", "description": "Email address" },
+        "displayName": { "type": "string", "description": "Display name" },
+        "photoURL": { "type": "string", "description": "Avatar URL" },
+        "createdAt": { "type": "string", "description": "Creation ISO date" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Site": {
+      "title": "Site",
+      "description": "Managed website",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique Site ID" },
+        "userId": { "type": "string", "description": "Owner UID" },
+        "name": { "type": "string", "description": "Website or brand name" },
+        "url": { "type": "string", "description": "Production domain or URL" },
+        "builder": { "type": "string", "description": "Builder platform type" },
+        "scriptVerified": { "type": "boolean", "description": "Script active status" },
+        "scriptToken": { "type": "string", "description": "Verification snippet token" },
+        "fixMode": { "type": "string", "description": "Automation fix mode" },
+        "scriptRevoked": { "type": "boolean", "description": "Emergency revoke state" },
+        "overallScore": { "type": "number", "description": "Live score 0-100" },
+        "projectedScore": { "type": "number", "description": "Projected score" },
+        "pagesScanned": { "type": "number", "description": "Number of scanned pages" },
+        "lastCrawledAt": { "type": "string", "description": "Last crawl timestamp" }
+      },
+      "required": ["id", "userId", "name", "url", "builder"]
+    },
+    "SEOIssue": {
+      "title": "SEOIssue",
+      "description": "Ranked on-page SEO issue",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Issue ID" },
+        "siteId": { "type": "string", "description": "Parent Site ID" },
+        "userId": { "type": "string", "description": "Owner UID" },
+        "category": { "type": "string", "description": "Issue category" },
+        "type": { "type": "string", "description": "Issue type tag" },
+        "page": { "type": "string", "description": "Target page path" },
+        "severity": { "type": "string", "description": "Issue severity" },
+        "title": { "type": "string", "description": "Issue title" },
+        "description": { "type": "string", "description": "Detailed description" },
+        "impact": { "type": "string", "description": "Impact delta" },
+        "currentValue": { "type": "string", "description": "Original raw value" },
+        "recommendedValue": { "type": "string", "description": "Recommended fix" },
+        "plainFix": { "type": "string", "description": "Plain English fix" },
+        "applied": { "type": "boolean", "description": "Whether applied" },
+        "status": { "type": "string", "description": "Status" }
+      },
+      "required": ["id", "siteId", "userId", "title", "recommendedValue"]
+    },
+    "Keyword": {
+      "title": "Keyword",
+      "description": "Tracked search keyword and SERP ranking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Keyword ID" },
+        "userId": { "type": "string", "description": "Owner UID" },
+        "keyword": { "type": "string", "description": "Search keyword phrase" },
+        "volume": { "type": "number", "description": "Monthly search volume" },
+        "difficulty": { "type": "number", "description": "Keyword difficulty 0-100" },
+        "intent": { "type": "string", "description": "Search intent" },
+        "cpc": { "type": "number", "description": "Estimated CPC" },
+        "cluster": { "type": "string", "description": "Keyword cluster" },
+        "currentRank": { "type": "number", "description": "Current rank" },
+        "rankDelta": { "type": "number", "description": "Rank delta change" },
+        "impressions": { "type": "number", "description": "Search impressions" },
+        "clicks": { "type": "number", "description": "Search clicks" }
+      },
+      "required": ["id", "userId", "keyword"]
+    },
+    "ChangelogItem": {
+      "title": "ChangelogItem",
+      "description": "Historical audit log of applied fixes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Log ID" },
+        "userId": { "type": "string", "description": "Owner UID" },
+        "siteId": { "type": "string", "description": "Target site ID" },
+        "issueId": { "type": "string", "description": "Source issue ID" },
+        "type": { "type": "string", "description": "Change type" },
+        "page": { "type": "string", "description": "Affected page" },
+        "title": { "type": "string", "description": "Log title" },
+        "before": { "type": "string", "description": "Previous content" },
+        "after": { "type": "string", "description": "Injected fix content" },
+        "appliedBy": { "type": "string", "description": "Actor description" },
+        "timestamp": { "type": "string", "description": "Timestamp" },
+        "status": { "type": "string", "description": "Active or reverted" }
+      },
+      "required": ["id", "userId", "siteId", "title", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Root user profile document"
+    },
+    "/users/{userId}/sites/{siteId}": {
+      "schema": "Site",
+      "description": "Managed websites belonging to this user"
+    },
+    "/users/{userId}/sites/{siteId}/issues/{issueId}": {
+      "schema": "SEOIssue",
+      "description": "Issues and fixes for a specific site"
+    },
+    "/users/{userId}/keywords/{keywordId}": {
+      "schema": "Keyword",
+      "description": "Tracked keywords belonging to this user"
+    },
+    "/users/{userId}/changelog/{changelogId}": {
+      "schema": "ChangelogItem",
+      "description": "Changelog history belonging to this user"
+    }
+  }
+}

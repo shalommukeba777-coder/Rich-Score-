@@ -1,0 +1,88 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny All Catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Users collection and subcollections
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create, update: if isOwner(userId) &&
+        incoming().uid == userId &&
+        incoming().email is string &&
+        incoming().email.size() <= 256;
+      allow delete: if false;
+
+      // Sites subcollection
+      match /sites/{siteId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+          isValidId(siteId) &&
+          incoming().id == siteId &&
+          incoming().userId == userId &&
+          incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 120 &&
+          incoming().url is string && incoming().url.size() > 0 && incoming().url.size() <= 300;
+        allow update: if isOwner(userId) &&
+          isValidId(siteId) &&
+          incoming().id == existing().id &&
+          incoming().userId == existing().userId;
+        allow delete: if isOwner(userId);
+
+        // Issues subcollection
+        match /issues/{issueId} {
+          allow read: if isOwner(userId);
+          allow create, update: if isOwner(userId) &&
+            isValidId(issueId) &&
+            incoming().userId == userId &&
+            incoming().siteId == siteId;
+          allow delete: if isOwner(userId);
+        }
+      }
+
+      // Keywords subcollection
+      match /keywords/{keywordId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) &&
+          isValidId(keywordId) &&
+          incoming().userId == userId &&
+          incoming().keyword is string && incoming().keyword.size() > 0 && incoming().keyword.size() <= 200;
+        allow delete: if isOwner(userId);
+      }
+
+      // Changelog subcollection
+      match /changelog/{changelogId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+          isValidId(changelogId) &&
+          incoming().userId == userId;
+        allow update: if isOwner(userId) &&
+          isValidId(changelogId) &&
+          incoming().userId == existing().userId;
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}
